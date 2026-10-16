@@ -1,0 +1,414 @@
+:root {
+  --bg: #0d1117;
+  --panel: #161b22;
+  --panel-2: #1c2129;
+  --border: #30363d;
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+  --ok: #3fb950;
+  --warn: #d29922;
+  --err: #f85149;
+  --progress: #58a6ff;
+  --idle: #6e7681;
+  --mono: ui-monospace, SFMono-Regular, 'Cascadia Mono', Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  font-size: 14px;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.app {
+  min-height: 100vh;
+  padding-bottom: 64px; /* 给底部事件条留位置 */
+}
+
+/* ── 顶栏 ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.brand {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.brand span {
+  color: var(--text-dim);
+  font-weight: 400;
+  margin-left: 8px;
+  font-size: 13px;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.refresh {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.refresh:hover {
+  border-color: var(--idle);
+}
+
+/* ── 横幅 ── */
+.banner {
+  padding: 8px 20px;
+  font-size: 13px;
+}
+
+.banner--warn {
+  background: rgba(210, 153, 34, 0.15);
+  color: var(--warn);
+  border-bottom: 1px solid rgba(210, 153, 34, 0.4);
+}
+
+.banner--err {
+  background: rgba(248, 81, 73, 0.15);
+  color: var(--err);
+  border-bottom: 1px solid rgba(248, 81, 73, 0.4);
+}
+
+main {
+  padding: 16px 20px;
+}
+
+/* ── 流水线面板 ── */
+.board {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--panel);
+}
+
+.board-head,
+.lane {
+  display: grid;
+  grid-template-columns: 200px 260px 150px 190px 1fr 130px;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 16px;
+}
+
+.board-head {
+  color: var(--text-dim);
+  font-size: 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel-2);
+}
+
+.lane {
+  border-bottom: 1px solid var(--border);
+  min-height: 52px;
+}
+
+.lane:last-child {
+  border-bottom: none;
+}
+
+.lane:hover {
+  background: var(--panel-2);
+}
+
+.lane--stale {
+  opacity: 0.55;
+}
+
+.lane--skeleton {
+  min-height: 52px;
+}
+
+.skeleton {
+  display: block;
+  height: 16px;
+  width: 60%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--panel-2) 25%, #262c34 50%, var(--panel-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.empty {
+  padding: 32px;
+  text-align: center;
+  color: var(--text-dim);
+}
+
+.repo-name {
+  font-family: var(--mono);
+  font-weight: 600;
+}
+
+.repo-name:hover {
+  color: var(--progress);
+}
+
+.repo-err {
+  color: var(--err);
+  margin-left: 6px;
+  cursor: help;
+  font-weight: 700;
+}
+
+.commit-msg {
+  color: var(--text-dim);
+  font-size: 12px;
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 250px;
+}
+
+/* ── 状态片 ── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-family: var(--mono);
+  border: 1px solid;
+  white-space: nowrap;
+  cursor: default;
+}
+
+a.chip {
+  cursor: pointer;
+}
+
+.chip--ok {
+  color: var(--ok);
+  border-color: rgba(63, 185, 80, 0.4);
+  background: rgba(63, 185, 80, 0.12);
+}
+
+.chip--warn {
+  color: var(--warn);
+  border-color: rgba(210, 153, 34, 0.4);
+  background: rgba(210, 153, 34, 0.12);
+}
+
+.chip--err {
+  color: var(--err);
+  border-color: rgba(248, 81, 73, 0.4);
+  background: rgba(248, 81, 73, 0.12);
+}
+
+.chip--progress {
+  color: var(--progress);
+  border-color: rgba(88, 166, 255, 0.4);
+  background: rgba(88, 166, 255, 0.12);
+}
+
+.chip--idle {
+  color: var(--text-dim);
+  border-color: var(--border);
+  background: transparent;
+}
+
+/* ── 构建进度 ── */
+.build {
+  position: relative;
+}
+
+.build .bar {
+  margin-top: 5px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--panel-2);
+  overflow: hidden;
+  max-width: 200px;
+}
+
+.build .bar-fill {
+  height: 100%;
+  background: var(--progress);
+  transition: width 0.6s ease;
+}
+
+.build .step-text {
+  color: var(--text-dim);
+  font-size: 11px;
+  margin-top: 3px;
+  font-family: var(--mono);
+}
+
+.build .expand {
+  background: none;
+  border: none;
+  color: var(--progress);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 6px;
+}
+
+.build .jobs {
+  margin-top: 6px;
+  border-left: 2px solid var(--border);
+  padding-left: 8px;
+}
+
+.build .job {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 11px;
+  color: var(--text-dim);
+  font-family: var(--mono);
+}
+
+.build .job-name {
+  margin-right: 6px;
+}
+
+.build .step {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.step--ok {
+  background: var(--ok);
+}
+
+.step--err {
+  background: var(--err);
+}
+
+.step--run {
+  background: var(--progress);
+  animation: pulse 1.2s infinite;
+}
+
+.step--idle {
+  background: var(--border);
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.spinner {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 2px solid rgba(88, 166, 255, 0.3);
+  border-top-color: var(--progress);
+  animation: spin 0.9s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── 底部事件条 ── */
+.ticker {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  padding: 8px 16px;
+  font-size: 12px;
+  z-index: 10;
+}
+
+.ticker-label {
+  color: var(--text-dim);
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+.ticker-note {
+  color: var(--idle);
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+.ticker-scroll {
+  display: flex;
+  gap: 22px;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: thin;
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  color: var(--text-dim);
+}
+
+.ticker-item .t-time {
+  font-family: var(--mono);
+  color: var(--idle);
+}
+
+.ticker-item .t-actor {
+  color: var(--text);
+}
+
+.ticker-item .t-repo {
+  font-family: var(--mono);
+  color: var(--progress);
+}
+
+.ticker-item .t-summary {
+  color: var(--text-dim);
+}

@@ -1,0 +1,17 @@
+# Go
+bin/
+*.exe
+*.test
+*.out
+.idea/
+.vscode/
+*.log
+# Node
+node_modules/
+.eslintcache
+*.tsbuildinfo
+coverage/
+# 构建产物（dist/.gitkeep 是 go:embed 的占位，必须保留）
+dist/*
+!dist/.gitkeep
+dist-release/

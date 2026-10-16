@@ -1,0 +1,26 @@
+openapi: 3.0.3
+info:
+  title: tf-console API
+  version: 0.1.0
+  description: FishMatrix 流水线可视化控制台接口契约（与实现同仓演进）
+paths:
+  /healthz:
+    get:
+      summary: 健康检查
+      responses:
+        "200":
+          description: 服务正常（含 service / version / uptime 字段）
+  /api/v1/pipeline:
+    get:
+      summary: 流水线全量快照
+      description: 11 个仓库的五阶段状态（提交 / test / PR 审核 / 构建进度 / 版本）+ org 事件流 + 配额信息；字段定义见后端 model.go 与前端 src/types.ts
+      responses:
+        "200":
+          description: Snapshot JSON
+  /{path}:
+    get:
+      summary: SPA 静态页兜底
+      description: 非 /api/ 路径：命中真实文件返回静态资源（/assets/ 带长缓存），否则回落 index.html
+      responses:
+        "200":
+          description: index.html 或静态资源

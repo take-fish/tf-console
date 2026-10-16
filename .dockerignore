@@ -1,0 +1,10 @@
+node_modules/
+dist/
+dist-release/
+bin/
+.git/
+.github/
+*.md
+.idea/
+.vscode/
+coverage/

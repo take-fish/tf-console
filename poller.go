@@ -109,8 +109,8 @@ func (p *Poller) pollOnce(ctx context.Context) {
 		Degraded:        p.cfg.Token == "",
 		DegradedReason:  degradedReason(p.cfg.Token),
 		RateLimit:       RateLimitView(rate),
-		Repos:  results,
-		Events: events,
+		Repos:           results,
+		Events:          events,
 	})
 }
 

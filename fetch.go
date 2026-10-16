@@ -215,12 +215,7 @@ func convertJobs(jobs []ghJob) []JobView {
 			Steps:      []StepView{},
 		}
 		for _, s := range j.Steps {
-			jv.Steps = append(jv.Steps, StepView{
-				Number:     s.Number,
-				Name:       s.Name,
-				Status:     s.Status,
-				Conclusion: s.Conclusion,
-			})
+			jv.Steps = append(jv.Steps, StepView(s))
 		}
 		out = append(out, jv)
 	}

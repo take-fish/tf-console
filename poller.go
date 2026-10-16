@@ -108,13 +108,9 @@ func (p *Poller) pollOnce(ctx context.Context) {
 		TokenConfigured: p.cfg.Token != "",
 		Degraded:        p.cfg.Token == "",
 		DegradedReason:  degradedReason(p.cfg.Token),
-		RateLimit: RateLimitView{
-			Limit:     rate.Limit,
-			Remaining: rate.Remaining,
-			ResetAt:   rate.ResetAt,
-		},
-		Repos:  results,
-		Events: events,
+		RateLimit:       RateLimitView(rate),
+		Repos:           results,
+		Events:          events,
 	})
 }
 

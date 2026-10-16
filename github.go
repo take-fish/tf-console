@@ -89,7 +89,7 @@ func (g *GitHub) getJSON(ctx context.Context, path string, out any) error {
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	g.recordRate(resp.Header)
 

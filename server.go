@@ -21,11 +21,12 @@ var distFS embed.FS
 type Server struct {
 	cfg     Config
 	store   *SnapshotStore
+	gh      *GitHub
 	started time.Time
 }
 
-func NewServer(cfg Config, store *SnapshotStore) *Server {
-	return &Server{cfg: cfg, store: store, started: time.Now()}
+func NewServer(cfg Config, store *SnapshotStore, gh *GitHub) *Server {
+	return &Server{cfg: cfg, store: store, gh: gh, started: time.Now()}
 }
 
 func setupRouter(s *Server) *gin.Engine {
@@ -46,6 +47,8 @@ func setupRouter(s *Server) *gin.Engine {
 		api.GET("/pipeline", func(c *gin.Context) {
 			c.JSON(http.StatusOK, s.store.Get())
 		})
+		api.GET("/repos/:repo/branches", s.handleRepoBranches)
+		api.GET("/repos/:repo/commits", s.handleRepoCommits)
 	}
 
 	sub, err := fs.Sub(distFS, "dist")

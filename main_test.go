@@ -17,7 +17,7 @@ func newTestServer(snap Snapshot) *Server {
 	}
 	store := NewSnapshotStore()
 	store.Set(snap)
-	return NewServer(cfg, store)
+	return NewServer(cfg, store, NewGitHub("https://api.github.com", ""))
 }
 
 func TestHealthz(t *testing.T) {

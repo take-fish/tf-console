@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { RouterLink } from 'vue-router'
 import type { RepoStatus, Tone } from '@/types'
 import StageChip from '@/components/StageChip.vue'
 import BuildProgress from '@/components/BuildProgress.vue'
@@ -77,7 +78,12 @@ const releaseChip = computed<ChipSpec>(() => {
 <template>
   <div class="lane" :class="{ 'lane--stale': repo.stale }">
     <div class="col col--repo">
-      <a class="repo-name" :href="repo.html_url" target="_blank" rel="noreferrer">{{ repo.name }}</a>
+      <RouterLink class="repo-name" :to="`/repos/${repo.name}`" :title="`查看 ${repo.name} 详情`">
+        {{ repo.name }}
+      </RouterLink>
+      <a class="repo-ext" :href="repo.html_url" target="_blank" rel="noreferrer" title="在 GitHub 打开">
+        ↗
+      </a>
       <span v-if="repo.error" class="repo-err" :title="repo.error">!</span>
     </div>
     <div class="col col--commit">

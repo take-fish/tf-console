@@ -1,10 +1,35 @@
-# tf-console
+# tf-console（FishMatrix-流水线中台）
 
-FishMatrix（摸鱼矩阵）流水线可视化控制台 —— Go(Gin) + Vue 3，前端构建产物内嵌进单个二进制。
+FishMatrix-流水线中台 —— Go(Gin) + Vue 3，前端构建产物内嵌进单个二进制。
 
-- 角色：把「代码提交 → 分支管理 → 审核 → 自动构建 → 发布」抽成一页实时泳道图，轮询 11 个仓库的 GitHub 状态
+- 一级页：11 仓实时泳道（提交 → test → PR 审核 → 构建 → 发布）
+- 二级页：`/repos/:repo`，按仓库查看分支/提交、合并申请（只读）、构建与发版进度
 - 端口：`8301`（可用 `PORT` 环境变量覆盖）
-- 健康检查：`GET /healthz`；数据接口：`GET /api/v1/pipeline`
+- 健康检查：`GET /healthz`
+
+> 当前为 **A 方案：只读中台**。建分支、合 test、发起/审核/合并 master PR 等写操作，等登录与身份隔离落地后开放；详见项目进度记录。
+
+## API
+
+| 方法/路径 | 说明 |
+|---|---|
+| `GET /api/v1/pipeline` | 11 仓五阶段快照 + 事件流 + 配额 |
+| `GET /api/v1/repos/{repo}/branches` | 仓库分支列表（name / short_sha / protected） |
+| `GET /api/v1/repos/{repo}/commits?branch=master&limit=30` | 指定分支最近提交 |
+| `GET /healthz` | 健康检查 |
+
+分支/提交接口只允许 `TF_CONSOLE_REPOS` 配置的仓库，按需请求并复用 ETag 缓存。
+
+## 页面
+
+| 路由 | 内容 |
+|---|---|
+| `/` | 11 仓泳道总览（保留原首页） |
+| `/repos/:repo` | 分支与提交 / 合并申请（只读）/ 构建与发版 |
+
+- 合并申请使用快照中的开放 PR 与审核状态；当前只读，审核/合并跳转 GitHub。
+- 构建与发版展示 test CI、master CI step 进度、最新 Release；集中机容器部署状态暂不包含。
+- 自建分支仅展示提交记录；代码仍由本地 Git 推送。
 
 ## 环境变量
 
@@ -24,22 +49,23 @@ FishMatrix（摸鱼矩阵）流水线可视化控制台 —— Go(Gin) + Vue 3�
 - 自适应间隔：配额 >2000 → 30s；500~2000 → 60s；≤500 → 5 分钟；耗尽时退避到重置时刻
 - ETag 与 Authorization 头绑定：**更换 token 后第一轮全量刷新**属正常现象
 - org 事件流接口在 GitHub 侧有 30 秒 ~ 数小时延迟，页面已标注「事件有延迟」
+- 分支/提交为二级页按需请求，同样走 ETag 缓存
 
 ## 本地开发
 
 ```bash
-# 后端（dist/.gitkeep 占位即可编译；真实前端产物见下）
+# 后端（先构建前端生成 dist/；前端路由需要 SPA fallback）
+npm ci && npm run build-only
 PORT=8301 GITHUB_TOKEN=<token> go run .
 
-# 前端（热更新，/api 自动代理到 8301）
-npm install
+# 前端（热更新，/api 自动代理到 8301；/repos/* 由 Vite history fallback 处理）
 npm run dev
 ```
 
 完整构建（前端产物嵌入二进制）：
 
 ```bash
-npm ci && npm run build-only   # 先生成 dist/
+npm ci && npm run build-only
 go build -trimpath -ldflags "-s -w -X main.version=v0.1.0" -o bin/tf-console .
 ```
 

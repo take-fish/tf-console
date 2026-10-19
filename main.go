@@ -22,7 +22,7 @@ func main() {
 	gh := NewGitHub(cfg.APIBase, cfg.Token)
 	store := NewSnapshotStore()
 	poller := NewPoller(cfg, gh, store)
-	server := NewServer(cfg, store)
+	server := NewServer(cfg, store, gh)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()

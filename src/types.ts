@@ -39,6 +39,12 @@ export interface CommitView {
   html_url: string
 }
 
+export interface BranchView {
+  name: string
+  short_sha: string
+  protected: boolean
+}
+
 export interface TestBranchView {
   exists: boolean
   latest_commit: CommitView | null

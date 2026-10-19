@@ -1,8 +1,12 @@
 openapi: 3.0.3
 info:
   title: tf-console API
-  version: 0.1.0
-  description: FishMatrix 流水线可视化控制台接口契约（与实现同仓演进）
+  version: 0.2.0
+  description: |
+    FishMatrix-流水线中台接口契约（与实现同仓演进）。
+    一级页提供 11 仓流水线快照；二级页提供仓库分支与提交记录。
+    当前为只读阶段：不包含建分支、合并、审核等写操作。
+
 paths:
   /healthz:
     get:
@@ -10,6 +14,7 @@ paths:
       responses:
         "200":
           description: 服务正常（含 service / version / uptime 字段）
+
   /api/v1/pipeline:
     get:
       summary: 流水线全量快照
@@ -17,10 +22,49 @@ paths:
       responses:
         "200":
           description: Snapshot JSON
+
+  /api/v1/repos/{repo}/branches:
+    get:
+      summary: 仓库分支列表
+      parameters:
+        - in: path
+          name: repo
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: '{ "branches": [ { "name", "short_sha", "protected" } ] }'
+        "404":
+          description: 仓库不在展示列表
+
+  /api/v1/repos/{repo}/commits:
+    get:
+      summary: 分支最近提交
+      parameters:
+        - in: path
+          name: repo
+          required: true
+          schema: { type: string }
+        - in: query
+          name: branch
+          schema: { type: string, default: master }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 30, minimum: 1, maximum: 100 }
+      responses:
+        "200":
+          description: '{ "branch": string, "commits": CommitView[] }'
+        "400":
+          description: 分支名或 limit 非法
+        "404":
+          description: 仓库或分支不存在
+        "502":
+          description: GitHub 上游不可用
+
   /{path}:
     get:
       summary: SPA 静态页兜底
-      description: 非 /api/ 路径：命中真实文件返回静态资源（/assets/ 带长缓存），否则回落 index.html
+      description: 非 /api/ 路径：命中真实文件返回静态资源（/assets/ 带长缓存），否则回落 index.html（含 /repos/:repo 前端路由）
       responses:
         "200":
           description: index.html 或静态资源

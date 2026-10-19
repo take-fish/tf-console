@@ -138,6 +138,13 @@ type ReleaseView struct {
 	Prerelease  bool      `json:"prerelease"`
 }
 
+// BranchView 仓库分支列表项（只读）
+type BranchView struct {
+	Name      string `json:"name"`
+	ShortSHA  string `json:"short_sha"`
+	Protected bool   `json:"protected"`
+}
+
 // EventView org 事件流条目
 type EventView struct {
 	ID          string    `json:"id"`
@@ -165,6 +172,15 @@ type ghCommit struct {
 		AvatarURL string `json:"avatar_url"`
 	} `json:"author"`
 	HTMLURL string `json:"html_url"`
+}
+
+type ghBranch struct {
+	Name      string `json:"name"`
+	Protected bool   `json:"protected"`
+	Commit    struct {
+		SHA string `json:"sha"`
+		URL string `json:"url"`
+	} `json:"commit"`
 }
 
 type ghCompare struct {

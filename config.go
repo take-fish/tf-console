@@ -23,6 +23,8 @@ type Config struct {
 	Repos        []string
 	PollInterval time.Duration
 	TestCI       bool // 是否展示 test 分支的 CI 状态（TF_CONSOLE_TEST_CI=0 可关）
+	LokiURL      string
+	LogToken     string // 非空时日志检索必须携带 X-Log-Token
 }
 
 // LoadConfig 从环境变量装载配置
@@ -34,6 +36,8 @@ func LoadConfig() Config {
 		APIBase:      getenv("GITHUB_API_BASE", "https://api.github.com"),
 		PollInterval: 30 * time.Second,
 		TestCI:       os.Getenv("TF_CONSOLE_TEST_CI") != "0",
+		LokiURL:      strings.TrimSpace(os.Getenv("LOKI_URL")),
+		LogToken:     os.Getenv("TF_CONSOLE_LOG_TOKEN"),
 	}
 	if v := os.Getenv("TF_CONSOLE_REPOS"); v != "" {
 		cfg.Repos = splitTrim(v)

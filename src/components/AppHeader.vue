@@ -17,6 +17,7 @@ const updatedText = computed(() =>
       FishMatrix <span>流水线中台</span>
     </RouterLink>
     <div class="meta">
+      <RouterLink to="/logs" class="nav-link" title="按链路编号检索日志">日志检索</RouterLink>
       <span v-if="store.rateText">{{ store.rateText }}</span>
       <span>轮询 {{ pollSeconds }}s</span>
       <span>更新于 {{ updatedText }}</span>

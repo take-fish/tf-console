@@ -4,6 +4,7 @@ FishMatrix-流水线中台 —— Go(Gin) + Vue 3，前端构建产物内嵌进�
 
 - 一级页：11 仓实时泳道（提交 → test → PR 审核 → 构建 → 发布）
 - 二级页：`/repos/:repo`，按仓库查看分支/提交、合并申请（只读）、构建与发版进度
+- 日志检索：`/logs`，输入链路编号，查看命中日志及前后 30 / 50 / 100 行上下文
 - 端口：`8301`（可用 `PORT` 环境变量覆盖）
 - 健康检查：`GET /healthz`
 
@@ -16,9 +17,13 @@ FishMatrix-流水线中台 —— Go(Gin) + Vue 3，前端构建产物内嵌进�
 | `GET /api/v1/pipeline` | 11 仓五阶段快照 + 事件流 + 配额 |
 | `GET /api/v1/repos/{repo}/branches` | 仓库分支列表（name / short_sha / protected） |
 | `GET /api/v1/repos/{repo}/commits?branch=master&limit=30` | 指定分支最近提交 |
+| `GET /api/v1/logs/meta` | 日志检索能力（Loki 可用性、保留天数、选项） |
+| `GET /api/v1/logs/search?id=&env=&lines=&range=` | 按链路编号检索 Loki 日志与上下文 |
 | `GET /healthz` | 健康检查 |
 
 分支/提交接口只允许 `TF_CONSOLE_REPOS` 配置的仓库，按需请求并复用 ETag 缓存。
+
+日志检索参数：`id` 为 8~64 位十六进制；`env` 取 `all/prod/test`；`lines` 取 `30/50/100`；`range` 取 `1h/6h/24h/7d/14d`。配置 `TF_CONSOLE_LOG_TOKEN` 后必须携带 `X-Log-Token` 头。完整说明见 `tf-deploy/docs/日志与链路追踪.md`。
 
 ## 页面
 
@@ -26,6 +31,7 @@ FishMatrix-流水线中台 —— Go(Gin) + Vue 3，前端构建产物内嵌进�
 |---|---|
 | `/` | 11 仓泳道总览（保留原首页） |
 | `/repos/:repo` | 分支与提交 / 合并申请（只读）/ 构建与发版 |
+| `/logs` | 日志检索：链路编号 + 环境 + 上下文行数 + 时间范围 |
 
 - 合并申请使用快照中的开放 PR 与审核状态；当前只读，审核/合并跳转 GitHub。
 - 构建与发版展示 test CI、master CI step 进度、最新 Release；集中机容器部署状态暂不包含。
@@ -42,6 +48,8 @@ FishMatrix-流水线中台 —— Go(Gin) + Vue 3，前端构建产物内嵌进�
 | `TF_CONSOLE_REPOS` | 11 个仓 | 逗号分隔覆盖展示列表 |
 | `TF_CONSOLE_TEST_CI` | `1` | 设为 `0` 关闭 test 分支 CI 状态抓取 |
 | `POLL_INTERVAL` | `30s` | 基础轮询间隔（实际按配额自适应，见下） |
+| `LOKI_URL` | 空 | Loki 地址，例如 `http://loki:3100`；为空时日志检索返回 503 |
+| `TF_CONSOLE_LOG_TOKEN` | 空 | 日志检索口令；为空时不校验（仅建议本地开发） |
 
 ## 工作原理（配额友好）
 

@@ -76,7 +76,7 @@ func (c *lokiClient) available(ctx context.Context) bool {
 	if err != nil {
 		return false
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 4096))
 	return resp.StatusCode == http.StatusOK
 }
@@ -114,7 +114,7 @@ func (c *lokiClient) streamLabelNames(ctx context.Context) (map[string]bool, err
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var body struct {
 		Status string   `json:"status"`
@@ -129,7 +129,7 @@ func (c *lokiClient) streamLabelNames(ctx context.Context) (map[string]bool, err
 		if message == "" {
 			message = resp.Status
 		}
-		return nil, fmt.Errorf("Loki 标签查询失败: %s", message)
+		return nil, fmt.Errorf("loki 标签查询失败: %s", message)
 	}
 	names := make(map[string]bool, len(body.Data))
 	for _, name := range body.Data {
@@ -165,7 +165,7 @@ func (c *lokiClient) queryRange(
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var body lokiResponse
 	if err := json.NewDecoder(io.LimitReader(resp.Body, 16<<20)).Decode(&body); err != nil {
@@ -176,7 +176,7 @@ func (c *lokiClient) queryRange(
 		if message == "" {
 			message = resp.Status
 		}
-		return nil, fmt.Errorf("Loki 查询失败: %s", message)
+		return nil, fmt.Errorf("loki 查询失败: %s", message)
 	}
 	return body.Data.Result, nil
 }

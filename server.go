@@ -22,11 +22,18 @@ type Server struct {
 	cfg     Config
 	store   *SnapshotStore
 	gh      *GitHub
+	loki    *lokiClient
 	started time.Time
 }
 
 func NewServer(cfg Config, store *SnapshotStore, gh *GitHub) *Server {
-	return &Server{cfg: cfg, store: store, gh: gh, started: time.Now()}
+	return &Server{
+		cfg:     cfg,
+		store:   store,
+		gh:      gh,
+		loki:    newLokiClient(cfg.LokiURL),
+		started: time.Now(),
+	}
 }
 
 func setupRouter(s *Server) *gin.Engine {
@@ -49,6 +56,8 @@ func setupRouter(s *Server) *gin.Engine {
 		})
 		api.GET("/repos/:repo/branches", s.handleRepoBranches)
 		api.GET("/repos/:repo/commits", s.handleRepoCommits)
+		api.GET("/logs/meta", s.handleLogMeta)
+		api.GET("/logs/search", s.handleLogSearch)
 	}
 
 	sub, err := fs.Sub(distFS, "dist")

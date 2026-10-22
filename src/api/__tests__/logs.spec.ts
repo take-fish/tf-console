@@ -64,7 +64,7 @@ describe('normalizeLogId', () => {
 
 describe('searchLogs', () => {
   it('携带筛选参数与口令，并解析结果', async () => {
-    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(searchBody))
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(jsonResponse(searchBody))
     vi.stubGlobal('fetch', fetchMock)
 
     const result = await searchLogs(
@@ -85,7 +85,7 @@ describe('searchLogs', () => {
   it('口令错误时抛出带状态码的 LogApiError', async () => {
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue(
+      vi.fn<typeof fetch>().mockResolvedValue(
         jsonResponse({ error: 'UNAUTHORIZED', message: '日志检索口令无效' }, 401),
       ),
     )
@@ -100,7 +100,7 @@ describe('searchLogs', () => {
   })
 
   it('网络不可用时返回状态码 0', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('fetch failed')))
+    vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockRejectedValue(new TypeError('fetch failed')))
     const error = await fetchLogMeta().catch((value: unknown) => value)
     expect(error).toBeInstanceOf(LogApiError)
     expect(error).toMatchObject({ status: 0 })
